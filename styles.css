@@ -1,0 +1,227 @@
+:root{
+    /* ============================================================
+       WIREFRAME GREYSCALE TOKENS
+    ============================================================ */
+    --bg-0:#0e0e10;
+    --bg-grid: rgba(255,255,255,0.04);
+  
+    --panel:#1a1a1d;
+    --panel-edge:#2a2a2f;
+  
+    --text:#e6e6e6;
+    --text-dim:#a0a0a6;
+  
+    --accent:#bdbdbd;
+    --accent-2:#8a8a8a;
+  
+    --radius:10px;
+    --dock-h:64px;
+    --topbar-h:34px;
+    --ease:cubic-bezier(.16,1,.3,1);
+  }
+  
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;overflow:hidden;}
+  
+  body {
+    margin: 0;
+    height: 100vh;
+    font-family: "DM Sans", sans-serif;
+  }
+
+  
+  /* ============================================================
+     DESKTOP SURFACE
+  ============================================================ */
+  #desktop {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  
+    background-image: url("assets/background.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  
+  /* ============================================================
+     ICON RAIL
+  ============================================================ */
+  #icon-rail{
+    position:absolute;
+    top:48px; left:28px;
+    display:grid;
+    grid-template-columns:repeat(2, 84px);
+    gap:18px 14px;
+    z-index:2;
+  }
+  
+  .file-icon{
+    width:84px;
+    background:transparent;
+    border:none;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+    cursor:pointer;
+    color:var(--text);
+  }
+  
+  .file-icon .glyph{
+    width:64px;height:64px;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:14px;
+    background:#1f1f22;
+    border:1px solid var(--panel-edge);
+    transition:transform .18s var(--ease), background .18s;
+  }
+  
+  .file-icon .glyph svg{width:34px;height:34px;}
+  .file-icon span.label{
+    font-size:11px;
+    color:var(--text-dim);
+  }
+  
+  .file-icon:hover .glyph{
+    transform:translateY(-3px) scale(1.04);
+    background:#2a2a2f;
+  }
+  
+  /* offset rows */
+  #icon-rail .file-icon:nth-child(2n){margin-top:64px;}
+  
+  /* ============================================================
+     UTIL RAIL
+  ============================================================ */
+  #util-rail{
+    position:absolute;
+    top:48px; right:34px;
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+    z-index:2;
+  }
+  
+  .util-btn{
+    width:74px;height:74px;
+    border-radius:14px;
+    border:1px solid var(--panel-edge);
+    background:var(--panel);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+    color:var(--text);
+  }
+  
+  .util-btn svg{width:30px;height:30px;}
+  .util-btn:hover{
+    transform:translateY(-3px);
+    border-color:var(--accent);
+  }
+  
+  /* ============================================================
+     WINDOWS
+  ============================================================ */
+  .window{
+    position:absolute;
+    top:90px; right:34px;
+    width:420px;
+    max-height:70vh;
+    background:var(--panel);
+    border:1px solid var(--panel-edge);
+    border-radius:var(--radius);
+    box-shadow:0 24px 60px -10px rgba(0,0,0,.6);
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  
+    opacity:0;
+    pointer-events:none;
+    transform:translateY(14px) scale(.97);
+    transition:opacity .22s var(--ease), transform .22s var(--ease);
+  }
+  
+  .window.open{
+    opacity:1;
+    pointer-events:auto;
+    transform:translateY(0) scale(1);
+  }
+  
+  .window.front{z-index:20;}
+  
+  .window-head{
+    display:flex;
+    justify-content:space-between;
+    padding:10px 14px;
+    background:#000;
+    border-bottom:1px solid var(--panel-edge);
+    cursor:grab;
+  }
+  
+  .window-head .title{
+    font-family:'Bebas Neue',sans-serif;
+    color:var(--text);
+    letter-spacing:.08em;
+  }
+  
+  .window-head .close{
+    width:22px;height:22px;
+    border-radius:50%;
+    border:1px solid var(--panel-edge);
+    background:transparent;
+    color:var(--text-dim);
+    cursor:pointer;
+  }
+  
+  .window-body{
+    padding:18px;
+    overflow-y:auto;
+    color:var(--text-dim);
+    font-size:14px;
+    line-height:1.5;
+  }
+  
+  /* ============================================================
+     DOCK
+  ============================================================ */
+  #dock{
+    position:absolute;
+    bottom:18px;
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    gap:8px;
+    padding:8px;
+    background:var(--panel);
+    border:1px solid var(--panel-edge);
+    border-radius:16px;
+  }
+  
+  .dock-btn{
+    width:46px;height:46px;
+    border-radius:11px;
+    border:none;
+    background:#222226;
+    color:var(--text);
+    cursor:pointer;
+  }
+  
+  .dock-btn:hover{
+    transform:translateY(-4px);
+    background:#2d2d33;
+  }
+  
+  .dock-btn.is-active{
+    background:#3a3a3a;
+  }
+  
+  .dock-sep{
+    width:1px;height:28px;
+    background:var(--panel-edge);
+  }
+  
+  /* reduced motion */
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;}
+  }
