@@ -139,29 +139,23 @@ body{margin:0;height:100vh;font-family:"DM Sans", sans-serif;color:var(--text);}
 
 .window-body{padding:18px;overflow-y:auto;color:var(--text-dim);font-size:14px;line-height:1.5;}
 
-/* Content shown inside a member's window */
-.member-window{
-    width:100%;
-    min-height:500px;
-  
-    background-size:cover;
-    background-position:center;
-    background-repeat:no-repeat;
-  
-    border-radius:8px;
-  }
-.member-window-img{
-    width:100%;
-    max-width:260px;
-    height:auto;
-    object-fit:contain;
-    filter:drop-shadow(0 14px 30px rgba(0,0,0,.5));
+/* Member windows: window shrink-wraps to the image's own size
+   (capped so huge PNGs don't blow past the viewport), top bar
+   only carries the exit/minimize controls. */
+.window.window--portrait{
+    width:auto;
+    max-height:none;
 }
-.member-window-label{
-    font-family:'Bebas Neue',sans-serif;
-    letter-spacing:.12em;
-    font-size:22px;
-    color:var(--text);
+.window.window--portrait .window-body{
+    padding:0;
+    overflow:hidden;
+}
+.member-window-img{
+    display:block;
+    width:auto;
+    height:auto;
+    max-width:min(90vw, 640px);
+    max-height:80vh;
 }
 
 /* ============================================================

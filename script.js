@@ -21,23 +21,18 @@ const ICON = {
    any of the window logic below.
 ============================================================ */
 const APPS = [
-  { id:'cherie',   label:'CHERIE',   img:'assets/icons/cherie.png',   portrait:'assets/background.jpg',   left:130, top:60,  size:180 },
+  { id:'cherie',   label:'CHERIE',   img:'assets/icons/cherie.png',   portrait:'assets/members/cherie.png',   left:130, top:60,  size:180 },
   { id:'mika',     label:'MIKA',     img:'assets/icons/mika.png',     portrait:'assets/icons/mika.png',     left:280, top:70,  size:190 },
   { id:'nadia',    label:'NADIA',    img:'assets/icons/nadia.png',    portrait:'assets/icons/nadia.png',    left:230, top:200, size:220 },
   { id:'adrienne', label:'ADRIENNE', img:'assets/icons/adrienne.png', portrait:'assets/icons/adrienne.png', left:60,  top:200, size:200 },
 ];
 
-/* Every member window just shows a portrait + name — defined
-   once here so each app object can own its own renderer. */
-   function memberWindowBody(label, img){
-    return `
-      <div
-        class="member-window"
-        style="background-image:url('${img}')"
-        aria-label="${label}"
-      ></div>
-    `;
-  }
+/* Every member window is just the portrait at its own natural
+   size/aspect ratio — defined once here so each app object can
+   own its own renderer. The name lives in the title bar. */
+function memberWindowBody(label, img){
+  return `<img class="member-window-img" src="${img}" alt="${label}">`;
+}
 APPS.forEach(app=>{
   app.window = (b)=>{ b.innerHTML = memberWindowBody(app.label, app.portrait || app.img); };
 });
@@ -297,6 +292,7 @@ function openWindow(id){
   if(!el){
     el=document.createElement('div');
     el.className='window';
+    if(item.portrait) el.classList.add('window--portrait');
     el.id='win-'+id;
     el.innerHTML=`
       <div class="window-head">
@@ -314,9 +310,17 @@ function openWindow(id){
     // cascade new windows so they don't stack exactly on top of each other
     const offset = (cascadeCount % 6) * 28;
     cascadeCount++;
-    el.style.left = Math.max(20, window.innerWidth - 420 - 34 - offset) + 'px';
-    el.style.top  = (90 + offset) + 'px';
-    el.style.right = 'auto';
+    if(item.portrait){
+      // portrait windows size to the image, so anchor from the left
+      // instead of assuming a fixed width
+      el.style.left = (480 + offset) + 'px';
+      el.style.top  = (90 + offset) + 'px';
+      el.style.right = 'auto';
+    } else {
+      el.style.left = Math.max(20, window.innerWidth - 420 - 34 - offset) + 'px';
+      el.style.top  = (90 + offset) + 'px';
+      el.style.right = 'auto';
+    }
 
     makeDraggable(el);
     el.addEventListener('mousedown', ()=> bringToFront(el));
