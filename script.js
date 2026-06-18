@@ -7,32 +7,32 @@ const ICON = {
     file:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 3h7l4 4v13H7z"/></svg>`,
     star:  `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.6 6.6L22 9l-5.5 4.8L18 22l-6-4-6 4 1.5-8.2L2 9l7.4-.4z"/></svg>`,
   };
-  
+   
   const APPS = [
     { id:'nadia', label:'NADIA', glyph:ICON.note, color:'#888', window:(b)=>b.innerHTML="Nadia content" },
     { id:'mika', label:'MIKA', glyph:ICON.star, color:'#888', window:(b)=>b.innerHTML="Mika content" },
   ];
-  
+   
   const UTILS = [
     { id:'photobook', glyph:ICON.folder, window:(b)=>b.innerHTML="Photobook" },
     { id:'video', glyph:ICON.play, window:(b)=>b.innerHTML="Video" },
   ];
-  
+   
   const DOCK = [
     { id:'playlist', glyph:ICON.note, window:(b)=>b.innerHTML="Playlist" },
     { id:'site', glyph:ICON.globe, action:()=>window.open('https://example.com') },
     { id:'help', glyph:ICON.help, window:(b)=>b.innerHTML="Help" },
+    { id:'settings', glyph:ICON.folder, window:(b)=>b.innerHTML="Settings" }
   ];
-  
+   
   const iconRail = document.getElementById('icon-rail');
   const utilRail = document.getElementById('util-rail');
   const dock = document.getElementById('dock');
   const winLayer = document.getElementById('windows');
-  
+   
   const REGISTRY = {};
-  
   [...APPS,...UTILS,...DOCK].forEach(i=>{ if(i.id) REGISTRY[i.id]=i });
-  
+   
   APPS.forEach(app=>{
     iconRail.innerHTML += `
       <button class="file-icon" data-open="${app.id}">
@@ -40,24 +40,27 @@ const ICON = {
         <span class="label">${app.label}</span>
       </button>`;
   });
-  
+   
   UTILS.forEach(u=>{
     utilRail.innerHTML += `
       <button class="util-btn" data-open="${u.id}">
         ${u.glyph}
       </button>`;
   });
-  
-  DOCK.forEach(d=>{
-    if(d.sep) return;
+   
+  DOCK.forEach((d, i) => {
     dock.innerHTML += `
       <button class="dock-btn" data-open="${d.id}">
         ${d.glyph}
-      </button>`;
+      </button>
+    `;
+    if (i === DOCK.length - 2) {
+      dock.innerHTML += `<div class="dock-sep" id="dock-resize" title="Drag to resize"></div>`;
+    }
   });
-  
+   
   let z=20;
-  
+   
   function openWindow(id){
     let el=document.getElementById('win-'+id);
     if(!el){
@@ -65,24 +68,23 @@ const ICON = {
       el=document.createElement('div');
       el.className='window';
       el.id='win-'+id;
-  
       el.innerHTML=`
         <div class="window-head">
           <span class="title">${id.toUpperCase()}</span>
           <button class="close">✕</button>
         </div>
         <div class="window-body"></div>`;
-  
+   
       winLayer.appendChild(el);
       item.window(el.querySelector('.window-body'));
-  
+   
       el.querySelector('.close').onclick=()=>el.classList.remove('open');
     }
-  
+   
     el.classList.add('open');
     el.style.zIndex=++z;
   }
-  
+   
   document.addEventListener('click',e=>{
     const btn=e.target.closest('[data-open]');
     if(!btn) return;
@@ -91,3 +93,74 @@ const ICON = {
     if(item?.action) return item.action();
     openWindow(id);
   });
+   
+  /* ============================================================
+     DOCK RESIZE — drag the separator up/down to scale every
+     dock icon at once, mac-style. The dock's bottom edge stays
+     put (position:absolute bottom:18px + transform-origin:bottom)
+     so it grows upward, not in place on screen.
+  ============================================================ */
+  (function(){
+    const handle = document.getElementById('dock-resize');
+    if(!handle) return;
+   
+    const root = document.documentElement;
+    const MIN = 40;   // px, smallest icon size
+    const MAX = 110;  // px, largest icon size
+    const STORAGE_KEY = 'cadence-dock-size';
+   
+    let current = 60;
+    try{
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if(saved) current = clamp(parseInt(saved,10));
+    }catch(e){ /* storage unavailable, ignore */ }
+    setSize(current);
+   
+    function clamp(v){ return Math.max(MIN, Math.min(MAX, v)); }
+    function setSize(v){
+      current = clamp(v);
+      root.style.setProperty('--dock-size', current + 'px');
+    }
+   
+    let dragging = false;
+    let startY = 0;
+    let startSize = 0;
+   
+    function onPointerDown(e){
+      dragging = true;
+      startY = (e.touches ? e.touches[0].clientY : e.clientY);
+      startSize = current;
+      handle.classList.add('dragging');
+      document.body.style.userSelect = 'none';
+      document.body.style.cursor = 'row-resize';
+      e.preventDefault();
+    }
+   
+    function onPointerMove(e){
+      if(!dragging) return;
+      const y = (e.touches ? e.touches[0].clientY : e.clientY);
+      // dragging UP (negative delta) makes the dock bigger, like macOS
+      const delta = startY - y;
+      setSize(startSize + delta);
+    }
+   
+    function onPointerUp(){
+      if(!dragging) return;
+      dragging = false;
+      handle.classList.remove('dragging');
+      document.body.style.userSelect = '';
+      document.body.style.cursor = '';
+      try{ localStorage.setItem(STORAGE_KEY, String(current)); }catch(e){ /* ignore */ }
+    }
+   
+    handle.addEventListener('mousedown', onPointerDown);
+    window.addEventListener('mousemove', onPointerMove);
+    window.addEventListener('mouseup', onPointerUp);
+   
+    handle.addEventListener('touchstart', onPointerDown, {passive:false});
+    window.addEventListener('touchmove', onPointerMove, {passive:false});
+    window.addEventListener('touchend', onPointerUp);
+   
+    // double-click to reset to default — a common "did I mess this up" escape hatch
+    handle.addEventListener('dblclick', ()=> setSize(60));
+  })();
