@@ -31,10 +31,13 @@ const ICON = {
     { id:'video', glyph:ICON.play, window:(b)=>b.innerHTML="Video" },
   ];
 
+  /* ============================================================
+     IMAGES
+  ============================================================ */
   const PHOTOBOOK_IMAGES = [
-    "assets/concepts/01.jpg",
-    "assets/concepts/02.jpg",
-    "assets/concepts/03.jpg"
+    "assets/concept/concept1.png",
+    "assets/concept/concept2.png",
+    "assets/concept/concept1.png",
   ];
 
   let currentPhoto = 0;

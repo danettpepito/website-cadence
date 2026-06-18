@@ -221,11 +221,10 @@ PHOTOBOOK
   }
   
   .gallery-image{
-    max-height:95vh;
-    max-width:95vw;
+    max-height:80vh;
+    max-width:70vw;
   
     object-fit:contain;
-  
     display:block;
   
     box-shadow:
