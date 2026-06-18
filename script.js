@@ -22,8 +22,12 @@ const ICON = {
     { id:'adrienne', label:'ADRIENNE', img:'assets/icons/adrienne.png', left:60,  top:200, size:200, window:(b)=>b.innerHTML="Adrienne content" },
   ];
   
+    /* ============================================================
+     PHOTOBOOK
+  ============================================================ */
+
   const UTILS = [
-    { id:'photobook', glyph:ICON.folder, window:(b)=>b.innerHTML="Photobook" },
+    { id:'photobook', glyph:ICON.folder, action:openPhotobook },
     { id:'video', glyph:ICON.play, window:(b)=>b.innerHTML="Video" },
   ];
 
@@ -32,6 +36,70 @@ const ICON = {
     "assets/concepts/02.jpg",
     "assets/concepts/03.jpg"
   ];
+
+  let currentPhoto = 0;
+
+function openPhotobook(){
+
+  let gallery = document.getElementById("photobook-overlay");
+
+  if(!gallery){
+
+    gallery = document.createElement("div");
+    gallery.id = "photobook-overlay";
+
+    gallery.innerHTML = `
+      <div class="gallery-counter"></div>
+
+      <button class="gallery-close">CLOSE</button>
+
+      <button class="gallery-nav gallery-prev">
+        LEFT
+      </button>
+
+      <button class="gallery-nav gallery-next">
+        RIGHT
+      </button>
+
+      <img class="gallery-image" alt="Concept image">
+    `;
+
+    document.body.appendChild(gallery);
+
+    const img = gallery.querySelector(".gallery-image");
+    const counter = gallery.querySelector(".gallery-counter");
+
+    function updateImage(){
+      img.src = PHOTOBOOK_IMAGES[currentPhoto];
+      counter.textContent =
+        `${currentPhoto + 1}/${PHOTOBOOK_IMAGES.length}`;
+    }
+
+    gallery.querySelector(".gallery-close").onclick = () => {
+      gallery.classList.remove("open");
+    };
+
+    gallery.querySelector(".gallery-prev").onclick = () => {
+      currentPhoto =
+        (currentPhoto - 1 + PHOTOBOOK_IMAGES.length) %
+        PHOTOBOOK_IMAGES.length;
+
+      updateImage();
+    };
+
+    gallery.querySelector(".gallery-next").onclick = () => {
+      currentPhoto =
+        (currentPhoto + 1) %
+        PHOTOBOOK_IMAGES.length;
+
+      updateImage();
+    };
+
+    updateImage();
+  }
+
+  gallery.classList.add("open");
+}
   
   const DOCK = [
     { id:'playlist', glyph:ICON.note, window:(b)=>b.innerHTML="Playlist" },
