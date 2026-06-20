@@ -1,13 +1,3 @@
-const ICON = {
-  note:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>`,
-  folder:`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v1H3z"/><path d="M3 9h18v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>`,
-  play:  `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`,
-  globe: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>`,
-  help:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9.5 9a2.5 2.5 0 1 1 3.7 2.2c-.8.5-1.2 1-1.2 2"/><circle cx="12" cy="17" r=".4"/><circle cx="12" cy="12" r="9"/></svg>`,
-  file:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 3h7l4 4v13H7z"/></svg>`,
-  star:  `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.6 6.6L22 9l-5.5 4.8L18 22l-6-4-6 4 1.5-8.2L2 9l7.4-.4z"/></svg>`,
-};
-
 /* ============================================================
    APPS — each desktop file icon. Points at a PNG asset, plus
    a left/top offset so the four shards sit in their own
@@ -22,9 +12,9 @@ const ICON = {
 ============================================================ */
 const APPS = [
   { id:'cherie',   label:'CHERIE',   img:'assets/icons/cherie.png',   portrait:'assets/members/cherie.png',   left:130, top:60,  size:180 },
-  { id:'mika',     label:'MIKA',     img:'assets/icons/mika.png',     portrait:'assets/icons/mika.png',     left:280, top:70,  size:190 },
-  { id:'nadia',    label:'NADIA',    img:'assets/icons/nadia.png',    portrait:'assets/icons/nadia.png',    left:230, top:200, size:220 },
-  { id:'adrienne', label:'ADRIENNE', img:'assets/icons/adrienne.png', portrait:'assets/icons/adrienne.png', left:60,  top:200, size:200 },
+  { id:'mika',     label:'MIKA',     img:'assets/icons/mika.png',     portrait:'assets/members/cherie.png',     left:280, top:70,  size:190 },
+  { id:'nadia',    label:'NADIA',    img:'assets/icons/nadia.png',    portrait:'assets/members/cherie.png',    left:230, top:200, size:220 },
+  { id:'adrienne', label:'ADRIENNE', img:'assets/icons/adrienne.png', portrait:'assets/members/cherie.png', left:60,  top:200, size:200 },
 ];
 
 /* Every member window is just the portrait at its own natural
@@ -41,18 +31,41 @@ APPS.forEach(app=>{
    PHOTOBOOK
 ============================================================ */
 
-const UTILS = [
-  { id:'photobook', glyph:ICON.folder, action:openPhotobook },
-  { id:'video', glyph:ICON.play, window:(b)=>b.innerHTML="Video" },
-];
+/* UTILS and DOCK now point at your own PNGs instead of the
+   built-in inline SVGs — drop your files in assets/icons/ using
+   these names (or edit the paths below to match whatever you
+   already have). */
+   const LORE_VIDEO_URL = 'https://youtu.be/YOUR-VIDEO-ID'; // <-- swap in the real link
 
+   const UTILS = [
+     { id:'photobook', img:'assets/dock/file.png', action:openPhotobook },
+     {
+       id:'video',
+       label:'VIDEO',
+       img:'assets/statement.png',
+       portrait:'assets/members/cherie.png', // drop your poster/thumbnail PNG here
+       window: renderVideoPromoWindow
+     },
+   ];
+
+   function renderVideoPromoWindow(b){
+    b.innerHTML = `
+      <div class="video-portrait-wrap">
+        <img class="member-window-img" src="assets/thumbnail.png" alt="The Lore Film">
+        <a class="video-watch-btn" href="${LORE_VIDEO_URL}" target="_blank" rel="noopener">
+          WATCH ON YOUTUBE
+        </a>
+      </div>`;
+  }
+
+  
 /* ============================================================
    IMAGES
 ============================================================ */
 const PHOTOBOOK_IMAGES = [
   "assets/concept/concept1.png",
   "assets/concept/concept2.png",
-  "assets/concept/concept1.png",
+  "assets/concept/concept3.png",
 ];
 
 let currentPhoto = 0;
@@ -120,15 +133,16 @@ gallery.classList.add("open");
 }
 
 const DOCK = [
-  { id:'playlist', glyph:ICON.note, window:(b)=>b.innerHTML="Playlist" },
-  { id:'site', glyph:ICON.globe, action:()=>window.open('room.html', '_blank') },
-  { 
-    id:'help', 
-    glyph: ICON.help, 
-    portrait: 'assets/help/help.png',
-    window:(b)=>b.innerHTML = memberWindowBody("HELP", "assets/statement.png")
+  { id:'playlist', img:'assets/dock/music.png', window: renderPlaylistWindow },
+  { id:'site', img:'assets/dock/music.png', action:()=>window.open('room.html', '_blank') },
+  {
+    id:'help',
+    img:'assets/dock/music.png',
+    window:(b)=>{
+      b.innerHTML = `<img class="member-window-img" src="assets/background.jpeg" alt="Help">`;
+    }
   },
-  { id:'settings', glyph:ICON.folder, window:(b)=>b.innerHTML="Settings" }
+  { id:'settings', img:'assets/dock/music.png', window:(b)=>b.innerHTML="Settings" }
 ];
 
 const iconRail = document.getElementById('icon-rail');
@@ -153,14 +167,14 @@ APPS.forEach(app=>{
 UTILS.forEach(u=>{
   utilRail.innerHTML += `
     <button class="util-btn" data-open="${u.id}">
-      ${u.glyph}
+      <img src="${u.img}" alt="${u.id}">
     </button>`;
 });
 
 DOCK.forEach((d, i) => {
   dock.innerHTML += `
     <button class="dock-btn" data-open="${d.id}">
-      ${d.glyph}
+      <img src="${d.img}" alt="${d.id}">
     </button>
   `;
   if (i === DOCK.length - 2) {
@@ -427,3 +441,113 @@ document.addEventListener('click',e=>{
   handle.addEventListener('dblclick', ()=> setSize(60));
 })();
 
+/* ============================================================
+   FAN PLAYLIST — fan-submitted songs. Starts empty; anyone who
+   opens the dock's Playlist app can add a song under its
+   "Add Song" tab. Every submission re-renders BOTH that tab's
+   list and the desktop widget, since they're driven off the
+   same array — one push, two views update.
+============================================================ */
+const FAN_PLAYLIST = [];
+
+function fanPlaylistTrackMarkup(track){
+  return `
+    <li>
+      <span class="fpw-note">&#9834;</span>
+      <span>
+        <span class="fpw-song">${track.title}</span><br>
+        <span class="fpw-artist">${track.artist}</span>
+      </span>
+    </li>`;
+}
+
+function renderFanPlaylist(){
+  const listHTML = FAN_PLAYLIST.length
+    ? FAN_PLAYLIST.map(fanPlaylistTrackMarkup).join('')
+    : `<li class="fpw-empty">No songs yet — be the first to add one.</li>`;
+
+  document.querySelectorAll('[data-fan-playlist-list]').forEach(ul=>{
+    ul.innerHTML = listHTML;
+  });
+}
+
+function buildFanPlaylistWidget(){
+  if(document.getElementById('fan-playlist-widget')) return;
+  const widget = document.createElement('div');
+  widget.id = 'fan-playlist-widget';
+  widget.innerHTML = `
+    <div class="fpw-vinyl"><div class="fpw-vinyl-center"></div></div>
+    <div class="fpw-info">
+      <h3 class="fpw-title">Fan Playlist</h3>
+      <ul class="fpw-tracks" data-fan-playlist-list></ul>
+    </div>`;
+  document.getElementById('desktop').appendChild(widget);
+}
+
+/* Playlist app window: List tab (mirrors the desktop widget) +
+   Add Song tab (form that pushes into FAN_PLAYLIST and
+   re-renders everywhere via renderFanPlaylist). */
+function renderPlaylistWindow(b){
+  b.innerHTML = `
+    <div class="playlist-tabs">
+      <button type="button" class="playlist-tab-btn active" data-tab="list">LIST</button>
+      <button type="button" class="playlist-tab-btn" data-tab="add">ADD SONG</button>
+    </div>
+    <div class="playlist-tab-panel active" data-panel="list">
+      <ul class="fpw-tracks" data-fan-playlist-list></ul>
+    </div>
+    <div class="playlist-tab-panel" data-panel="add">
+      <form class="playlist-form" id="playlist-add-form">
+        <input type="text" name="title" placeholder="Song title" required maxlength="60">
+        <input type="text" name="artist" placeholder="Artist / fan name" required maxlength="60">
+        <button type="submit">ADD TO PLAYLIST</button>
+        <span class="playlist-form-note">Submitting adds your song to the Fan Playlist on the desktop.</span>
+      </form>
+    </div>`;
+
+  const tabBtns = b.querySelectorAll('.playlist-tab-btn');
+  const panels = b.querySelectorAll('.playlist-tab-panel');
+  tabBtns.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      tabBtns.forEach(x=>x.classList.remove('active'));
+      panels.forEach(p=>p.classList.remove('active'));
+      btn.classList.add('active');
+      b.querySelector(`[data-panel="${btn.dataset.tab}"]`).classList.add('active');
+    });
+  });
+
+  b.querySelector('#playlist-add-form').addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const form = e.target;
+    const title = form.title.value.trim();
+    const artist = form.artist.value.trim();
+    if(!title || !artist) return;
+
+    FAN_PLAYLIST.push({ title, artist });
+    renderFanPlaylist();
+    form.reset();
+
+    // jump back to the list tab so the fan can see their song land
+    b.querySelector('[data-tab="list"]').click();
+  });
+
+  renderFanPlaylist();
+}
+
+/* ============================================================
+   LOADING
+============================================================ */
+window.addEventListener('load', () => {
+  const loader = document.getElementById('loading-screen');
+
+  setTimeout(() => {
+    loader.classList.add('hidden');
+  }, 2200);
+});
+
+/* ============================================================
+   AUTO-OPEN — the lore-film promo opens itself on load since
+   it's the main campaign CTA. Visitors can minimize or close
+   it like any other window once they've seen it.
+============================================================ */
+openWindow('video');
