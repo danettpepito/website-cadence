@@ -137,14 +137,15 @@ const DOCK = [
   { id:'site', img:'assets/dock/music.png', action:()=>window.open('room.html', '_blank') },
   {
     id:'help',
+    label:'HELP',
     img:'assets/dock/music.png',
+    portrait:'assets/background.png', // <-- drop your help PNG at this path
     window:(b)=>{
-      b.innerHTML = `<img class="member-window-img" src="assets/background.jpeg" alt="Help">`;
+      b.innerHTML = `<img class="member-window-img" src="assets/statement.png" alt="Help">`;
     }
   },
   { id:'settings', img:'assets/dock/music.png', window:(b)=>b.innerHTML="Settings" }
 ];
-
 const iconRail = document.getElementById('icon-rail');
 const utilRail = document.getElementById('util-rail');
 const dock = document.getElementById('dock');
