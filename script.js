@@ -121,7 +121,7 @@ gallery.classList.add("open");
 
 const DOCK = [
   { id:'playlist', glyph:ICON.note, window:(b)=>b.innerHTML="Playlist" },
-  { id:'site', glyph:ICON.globe, action:()=>window.open('https://example.com') },
+  { id:'site', glyph:ICON.globe, action:()=>window.open('room.html', '_blank') },
   { id:'help', glyph:ICON.help, window:(b)=>b.innerHTML="Help" },
   { id:'settings', glyph:ICON.folder, window:(b)=>b.innerHTML="Settings" }
 ];
@@ -421,3 +421,4 @@ document.addEventListener('click',e=>{
 
   handle.addEventListener('dblclick', ()=> setSize(60));
 })();
+
