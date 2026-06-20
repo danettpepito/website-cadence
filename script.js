@@ -53,7 +53,7 @@ APPS.forEach(app=>{
       <div class="video-portrait-wrap">
         <img class="member-window-img" src="assets/thumbnail.png" alt="The Lore Film">
         <a class="video-watch-btn" href="${LORE_VIDEO_URL}" target="_blank" rel="noopener">
-          WATCH ON YOUTUBE
+          WATCH NOW
         </a>
       </div>`;
   }
@@ -476,63 +476,36 @@ function buildFanPlaylistWidget(){
   const widget = document.createElement('div');
   widget.id = 'fan-playlist-widget';
   widget.innerHTML = `
-    <div class="fpw-vinyl"><div class="fpw-vinyl-center"></div></div>
-    <div class="fpw-info">
-      <h3 class="fpw-title">Fan Playlist</h3>
-      <ul class="fpw-tracks" data-fan-playlist-list></ul>
-    </div>`;
+    <h3 class="fpw-title">Lyrics</h3>
+    <ul class="fpw-tracks fpw-tracks--widget" data-fan-playlist-list></ul>`;
   document.getElementById('desktop').appendChild(widget);
 }
 
-/* Playlist app window: List tab (mirrors the desktop widget) +
-   Add Song tab (form that pushes into FAN_PLAYLIST and
-   re-renders everywhere via renderFanPlaylist). */
-function renderPlaylistWindow(b){
-  b.innerHTML = `
-    <div class="playlist-tabs">
-      <button type="button" class="playlist-tab-btn active" data-tab="list">LIST</button>
-      <button type="button" class="playlist-tab-btn" data-tab="add">ADD SONG</button>
-    </div>
-    <div class="playlist-tab-panel active" data-panel="list">
-      <ul class="fpw-tracks" data-fan-playlist-list></ul>
-    </div>
-    <div class="playlist-tab-panel" data-panel="add">
+/* Playlist app window: just the Add Song form. Submitting
+   pushes into FAN_PLAYLIST and calls renderFanPlaylist(), which
+   updates the desktop widget instantly — no list view inside
+   this window at all anymore. */
+   function renderPlaylistWindow(b){
+    b.innerHTML = `
       <form class="playlist-form" id="playlist-add-form">
         <input type="text" name="title" placeholder="Song title" required maxlength="60">
         <input type="text" name="artist" placeholder="Artist / fan name" required maxlength="60">
         <button type="submit">ADD TO PLAYLIST</button>
         <span class="playlist-form-note">Submitting adds your song to the Fan Playlist on the desktop.</span>
-      </form>
-    </div>`;
-
-  const tabBtns = b.querySelectorAll('.playlist-tab-btn');
-  const panels = b.querySelectorAll('.playlist-tab-panel');
-  tabBtns.forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      tabBtns.forEach(x=>x.classList.remove('active'));
-      panels.forEach(p=>p.classList.remove('active'));
-      btn.classList.add('active');
-      b.querySelector(`[data-panel="${btn.dataset.tab}"]`).classList.add('active');
+      </form>`;
+  
+    b.querySelector('#playlist-add-form').addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const form = e.target;
+      const title = form.title.value.trim();
+      const artist = form.artist.value.trim();
+      if(!title || !artist) return;
+  
+      FAN_PLAYLIST.push({ title, artist });
+      renderFanPlaylist();
+      form.reset();
     });
-  });
-
-  b.querySelector('#playlist-add-form').addEventListener('submit', (e)=>{
-    e.preventDefault();
-    const form = e.target;
-    const title = form.title.value.trim();
-    const artist = form.artist.value.trim();
-    if(!title || !artist) return;
-
-    FAN_PLAYLIST.push({ title, artist });
-    renderFanPlaylist();
-    form.reset();
-
-    // jump back to the list tab so the fan can see their song land
-    b.querySelector('[data-tab="list"]').click();
-  });
-
-  renderFanPlaylist();
-}
+  }
 
 /* ============================================================
    LOADING
@@ -545,6 +518,8 @@ window.addEventListener('load', () => {
   }, 2200);
 });
 
+buildFanPlaylistWidget();
+renderFanPlaylist();
 /* ============================================================
    AUTO-OPEN — the lore-film promo opens itself on load since
    it's the main campaign CTA. Visitors can minimize or close
