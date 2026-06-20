@@ -28,7 +28,7 @@ body{margin:0;height:100vh;font-family:"DM Sans", sans-serif;color:var(--text);}
     height: 100%;
     position: relative;
 
-    background-image: url("assets/background.jpg");
+    background-image: url("assets/background.jpeg");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
