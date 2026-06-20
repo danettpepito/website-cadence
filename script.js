@@ -122,7 +122,12 @@ gallery.classList.add("open");
 const DOCK = [
   { id:'playlist', glyph:ICON.note, window:(b)=>b.innerHTML="Playlist" },
   { id:'site', glyph:ICON.globe, action:()=>window.open('room.html', '_blank') },
-  { id:'help', glyph:ICON.help, window:(b)=>b.innerHTML="Help" },
+  { 
+    id:'help', 
+    glyph: ICON.help, 
+    portrait: 'assets/help/help.png',
+    window:(b)=>b.innerHTML = memberWindowBody("HELP", "assets/statement.png")
+  },
   { id:'settings', glyph:ICON.folder, window:(b)=>b.innerHTML="Settings" }
 ];
 
