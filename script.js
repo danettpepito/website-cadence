@@ -693,7 +693,7 @@ function buildFanPlaylistWidget(){
         FAN PLAYLIST
       </div>
       <div class="fpw-title-row">
-        <h3 class="fpw-title">Lyrics</h3>
+        <h3 class="fpw-title">Fan Picks</h3>
         <span class="fpw-count" data-fan-playlist-count>0 tracks</span>
       </div>
     </div>
@@ -710,9 +710,8 @@ function buildFanPlaylistWidget(){
    function renderPlaylistWindow(b){
     b.innerHTML = `
       <div class="playlist-prompt">
-        <span class="playlist-prompt-emoji">🎤</span>
         <p class="playlist-prompt-question">What's your fight song?</p>
-        <p class="playlist-prompt-sub">Drop the track that gets you hyped — help us build the ultimate fan playlist.</p>
+        <p class="playlist-prompt-sub">Drop the track that gets you hyped! & help us build the ultimate fan playlist.</p>
       </div>
       <form class="playlist-form" id="playlist-add-form">
         <input type="text" name="title" placeholder="Song title" required maxlength="60">

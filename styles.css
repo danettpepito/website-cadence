@@ -19,13 +19,12 @@
     --icon-size:100px;
 
     /* darkens the desktop background gif — tweak the alpha to taste */
-    --bg-overlay: rgba(0,0,0,0.1);
+    --bg-overlay: rgba(0,0,0,0.2);
 }
 
 *{box-sizing:border-box;}
 html,body{margin:0;height:100%;overflow:hidden;}
 body{margin:0;height:100vh;font-family:"DM Sans", sans-serif;color:var(--text);}
-
 
 #desktop{
     width:100%;
@@ -34,6 +33,10 @@ body{margin:0;height:100vh;font-family:"DM Sans", sans-serif;color:var(--text);}
     overflow:hidden;
   }
   
+  div, section {
+    max-width: none !important;
+    max-height: none !important;
+  }
   #desktop::before{
     content:"";
     position:absolute;
@@ -618,7 +621,7 @@ PHOTOBOOK
   
   .gallery-counter{
     position:absolute;
-    top:20px;
+    top:50px;
     left:20px;
   
     font-size:24px;
@@ -630,7 +633,7 @@ PHOTOBOOK
   
   .gallery-close{
     position:absolute;
-    top:20px;
+    top:50px;
     right:20px;
   
     background:none;
@@ -704,7 +707,7 @@ PHOTOBOOK
     border-radius:8px;
     border:2px solid transparent;
     background:
-        linear-gradient(180deg, rgba(0,0,0,.6), rgba(0,0,0,.75)) padding-box,
+        linear-gradient(180deg, rgba(0,0,0,.6), rgba(0,0,0,.65)) padding-box,
         url("assets/playlist-bg.png") center / cover no-repeat padding-box,
         linear-gradient(90deg,
             #ff4dab,
@@ -892,9 +895,9 @@ PHOTOBOOK
     transition:background .15s, color .15s, border-color .15s;
 }
 .playlist-tab-btn.active{
-    background:#ff4dab;
+    background:#35ddfb;
     color:#000;
-    border-color:#ff4dab;
+    border-color:#35ddfb;
 }
 .playlist-tab-panel .fpw-song{color:var(--text);}
 .playlist-tab-panel .fpw-artist{color:var(--text-dim);}
@@ -909,12 +912,12 @@ PHOTOBOOK
     font-family:'DM Sans',sans-serif;
     font-size:13px;
 }
-.playlist-form input:focus{outline:2px solid #ff4dab;outline-offset:1px;}
+.playlist-form input:focus{outline:2px solid #35ddfb;outline-offset:1px;}
 .playlist-form button{
     margin-top:4px;
     padding:10px 0;
     border:none;border-radius:8px;
-    background:#ff4dab;
+    background:#35ddfb;
     color:#000;
     font-family:"massilia",sans-serif;
     letter-spacing:.06em;
@@ -1107,8 +1110,8 @@ PHOTOBOOK
     position:relative;
     margin:0 0 16px;
     padding:16px 18px;
-    background:linear-gradient(160deg, rgba(255,77,171,.16), rgba(255,77,171,.04));
-    border:1px solid rgba(255,77,171,.35);
+    background:linear-gradient(160deg, #04414b, rgba(255,77,171,.04));
+    border:1px solid #35ddfb;
     border-radius:10px;
     overflow:hidden;
 }
@@ -1119,7 +1122,7 @@ PHOTOBOOK
     right:-20%;
     width:140px;
     height:140px;
-    background:radial-gradient(circle, rgba(255,77,171,.35), transparent 70%);
+    background:radial-gradient(circle, #fbe735, transparent 70%);
     pointer-events:none;
 }
 .playlist-prompt-emoji{
