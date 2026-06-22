@@ -13,25 +13,93 @@
     --ease:cubic-bezier(.16,1,.3,1);
 
     /* single source of truth for dock icon size, drives everything below */
-    --dock-size:60px;
+    --dock-size:40px;
 
     /* single source of truth for desktop file-icon size */
     --icon-size:100px;
+
+    /* darkens the desktop background gif — tweak the alpha to taste */
+    --bg-overlay: rgba(0,0,0,0.1);
 }
 
 *{box-sizing:border-box;}
 html,body{margin:0;height:100%;overflow:hidden;}
 body{margin:0;height:100vh;font-family:"DM Sans", sans-serif;color:var(--text);}
 
-#desktop {
-    width: 100%;
-    height: 100%;
-    position: relative;
 
-    background-image: url("assets/background.jpeg");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+#desktop{
+    width:100%;
+    height:100%;
+    position:relative;
+    overflow:hidden;
+  }
+  
+  #desktop::before{
+    content:"";
+    position:absolute;
+    inset:0;
+  
+    background-image:
+      linear-gradient(var(--bg-overlay), var(--bg-overlay)),
+      url("assets/compressed-1782094307541.gif");
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+  
+    transform:scaleX(-1);
+    z-index:-1;
+}
+
+/* ambient glow layer */
+#desktop::after{
+    content:"";
+    position:absolute;
+    inset:-20%;
+
+    background:
+      radial-gradient(
+        circle at center,
+        rgba(255,255,255,0.12) 0%,
+        rgba(255,255,255,0.04) 25%,
+        transparent 60%
+      );
+
+    opacity:0;
+    pointer-events:none;
+    mix-blend-mode:screen;
+
+    animation:backgroundGlow 24s infinite ease-in-out;
+}
+
+@keyframes backgroundGlow{
+    0%, 8%, 100%{
+        opacity:0;
+        transform:scale(1);
+    }
+
+    10%{
+        opacity:.25;
+        transform:scale(1.05);
+    }
+
+    15%{
+        opacity:0;
+        transform:scale(1.1);
+    }
+
+    45%{
+        opacity:0;
+    }
+
+    50%{
+        opacity:.18;
+        transform:scale(1.03);
+    }
+
+    55%{
+        opacity:0;
+        transform:scale(1.08);
+    }
 }
 
 /* ============================================================
@@ -79,20 +147,72 @@ body{margin:0;height:100vh;font-family:"DM Sans", sans-serif;color:var(--text);}
     color:var(--text-dim);
     text-shadow:0 1px 3px rgba(0,0,0,.6);
 }
-.file-icon:hover .glyph{transform:translateY(-6px) scale(1.07);}
+.file-icon:hover .glyph{
+    animation:none;
+    transform:translateY(-6px) scale(1.07);
+}
 .file-icon:focus-visible .glyph{outline:2px solid var(--accent);outline-offset:4px;border-radius:6px;}
+
+/* ============================================================
+   ICON LAUNCH BOUNCE — quick mac-style jump played by adding
+   .icon-launch-bounce to a button via JS (bounceIconFor in
+   script.js). Self-removing: script.js strips the class once
+   the animation finishes, so it's ready to replay instantly.
+============================================================ */
+@keyframes iconLaunchBounce{
+    0%   { transform: translateY(0) scale(1); }
+    30%  { transform: translateY(-20px) scale(1.08); }
+    50%  { transform: translateY(0) scale(0.95); }
+    70%  { transform: translateY(-7px) scale(1.02); }
+    100% { transform: translateY(0) scale(1); }
+}
+.icon-launch-bounce{
+    animation: iconLaunchBounce .6s cubic-bezier(.28,.84,.42,1);
+    transform-origin: 50% 100%;
+}
+
+/* ============================================================
+   IDLE ICON BREATHING — every desktop icon (member shards +
+   util rail) gets a slow, gentle vertical float when idle, so
+   the desktop feels alive even with no one touching it. Each
+   icon runs its own duration/delay so nothing moves in sync.
+============================================================ */
+@keyframes iconBreathe{
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-8px); }
+}
+
+
+.file-icon .glyph{
+    animation: iconBreathe 4.4s ease-in-out infinite;
+}
+#icon-rail .file-icon:nth-child(1) .glyph{ animation-duration:4.2s; animation-delay:0s;   }
+#icon-rail .file-icon:nth-child(2) .glyph{ animation-duration:5.1s; animation-delay:.6s;  }
+#icon-rail .file-icon:nth-child(3) .glyph{ animation-duration:4.7s; animation-delay:1.1s; }
+#icon-rail .file-icon:nth-child(4) .glyph{ animation-duration:5.6s; animation-delay:.3s;  }
 
 #util-rail{
     position:absolute;top:48px;right:34px;
     display:flex;flex-direction:column;gap:16px;z-index:2;
 }
 .util-btn{
-    width:74px;height:74px;border-radius:14px;border:none;
-    background:transparent;display:flex;align-items:center;justify-content:center;
+    width:96px;height:auto;border-radius:14px;border:none;
+    background:transparent;display:flex;flex-direction:column;align-items:center;
+    gap:6px;padding:4px 0;
     cursor:pointer;color:var(--text);
 }
-.util-btn img{width:48px;height:48px;object-fit:contain;}
+.util-btn img{width:68px;height:68px;object-fit:contain;}
 .util-btn:hover{transform:translateY(-3px);}
+.util-label{
+    font-family:'DM Sans', sans-serif;
+    font-size:13px;
+    font-weight:700;
+    color:#fff;
+    text-shadow:0 1px 1px rgba(0,0,0,.7), 0 0 8px rgba(0,0,0,.45);
+    text-align:center;
+    line-height:1.25;
+    max-width:110px;
+}
 
 /* ============================================================
    WINDOWS — draggable member/utility panels. Positioned via
@@ -104,8 +224,9 @@ body{margin:0;height:100vh;font-family:"DM Sans", sans-serif;color:var(--text);}
     background:var(--panel);border:1px solid var(--panel-edge);border-radius:var(--radius);
     box-shadow:0 24px 60px -10px rgba(0,0,0,.6);
     display:flex;flex-direction:column;overflow:hidden;
-    opacity:0;pointer-events:none;transform:translateY(14px) scale(.97);
-    transition:opacity .22s var(--ease), transform .22s var(--ease);
+    opacity:0;pointer-events:none;transform:translateY(18px) scale(.92);
+    transform-origin:50% 100%;
+    transition:opacity .26s ease, transform .32s cubic-bezier(.34,1.56,.64,1);
 }
 .window.open{opacity:1;pointer-events:auto;transform:translateY(0) scale(1);}
 .window.front{z-index:20;}
@@ -115,7 +236,39 @@ body{margin:0;height:100vh;font-family:"DM Sans", sans-serif;color:var(--text);}
     -webkit-user-select:none;user-select:none;
 }
 .window-head.dragging{cursor:grabbing;}
-.window-head .title{font-family:'Bebas Neue',sans-serif;color:var(--text);letter-spacing:.08em;}
+.window-head .title{font-family:"massilia",sans-serif;color:var(--text);}
+
+/* The lore-video window is pinned in place — no drag affordance */
+.window--fixed .window-head{
+    cursor: default;
+}
+
+/* ============================================================
+   LORE-VIDEO WINDOW — fixed wide/short display box, independent
+   of the thumbnail PNG's actual aspect ratio (this window is
+   pinned and non-resizable, so a fixed frame makes sense here
+   instead of relying on the image's native dimensions).
+   object-fit:cover fills the box without stretching — it crops
+   slightly rather than distorting. The window itself is locked
+   to this same width, and the body's padding is stripped, so
+   the visible tab is always exactly the image's size — no gap,
+   no overflow, no mismatch between the two.
+============================================================ */
+#win-video{
+    width: 640px;
+}
+#win-video .window-body{
+    padding: 0;
+    overflow: hidden;
+}
+#win-video .member-window-img{
+    width: 640px;
+    height: 360px;
+    max-width: none;
+    max-height: none;
+    object-fit: cover;
+    display: block;
+}
 
 .win-controls{
     display:flex;
@@ -137,7 +290,26 @@ body{margin:0;height:100vh;font-family:"DM Sans", sans-serif;color:var(--text);}
 .win-btn.minimize:hover{background:#ffd54d;color:#000;border-color:#ffd54d;}
 .win-btn.close:hover{background:#ff4dab;color:#000;border-color:#ff4dab;}
 
-.window-body{padding:18px;overflow-y:auto;color:var(--text-dim);font-size:14px;line-height:1.5;}
+.window-body{padding:18px;overflow-y:auto;color:var(--text-dim);font-size:14px;line-height:1.5;flex:1;min-height:0;}
+
+/* closing gets its own quicker "poof" instead of the bouncy open curve */
+.window.closing{
+    transition:opacity .18s ease, transform .22s cubic-bezier(.55,0,.85,.35) !important;
+    opacity:0 !important;
+    transform:translateY(8px) scale(.82) !important;
+}
+
+/* disables drag/resize interference while a genie fly animation is running */
+.window.genie-animating{
+    pointer-events:none;
+}
+
+/* the dock chip starts invisible/tiny — it pops in only once the window
+   has finished shrinking into it, so the two animations hand off cleanly */
+.dock-min-chip--entering{
+    opacity:0;
+    transform:scale(.4);
+}
 
 /* Member windows: window shrink-wraps to the image's own size
    (capped so huge PNGs don't blow past the viewport), top bar
@@ -157,47 +329,164 @@ body{margin:0;height:100vh;font-family:"DM Sans", sans-serif;color:var(--text);}
     max-width:min(100vw, 1500px);
     max-height:90vh;
   }
+  .member-window-img{
+    display:block;
+    width:auto;
+    height:auto;
+    max-width:min(62vw, 1500px);
+    max-height:100vh;
+  }
+  /* ============================================================
+   WINDOW RESIZE HANDLE — corner grip, bottom-right. For portrait
+   windows (member/help/video) JS locks the drag to the PNG's own
+   width/height ratio, so the box can only scale uniformly — it
+   can never squash or stretch the image.
+============================================================ */
+.window-resize-handle{
+    position:absolute;
+    right:3px;
+    bottom:3px;
+    width:18px;
+    height:18px;
+    cursor:nwse-resize;
+    z-index:5;
+    background:
+      linear-gradient(135deg,
+        transparent 0 45%,
+        rgba(255,255,255,.4) 45% 55%,
+        transparent 55% 65%,
+        rgba(255,255,255,.4) 65% 75%,
+        transparent 75% 85%,
+        rgba(255,255,255,.4) 85% 95%,
+        transparent 95% 100%
+      );
+    opacity:.7;
+    transition:opacity .15s;
+}
+.window-resize-handle:hover{
+    opacity:1;
+    background:
+      linear-gradient(135deg,
+        transparent 0 45%,
+        #ff4dab 45% 55%,
+        transparent 55% 65%,
+        #ff4dab 65% 75%,
+        transparent 75% 85%,
+        #ff4dab 85% 95%,
+        transparent 95% 100%
+      );
+}
 
 /* ============================================================
-   MINIMIZED TRAY — floats just above the dock. Minimized
-   windows tuck into here as small chips; click one to restore.
+   DOCK MINIMIZED GROUP — minimized windows tuck directly into
+   the dock itself (mac-style) instead of floating above it. A
+   thin divider only appears once something's actually parked
+   there, and each chip gets the little glowing dot mac uses to
+   mark a running/minimized app.
 ============================================================ */
-#minimized-tray{
-    position:absolute;
-    bottom:180px;
-    left:50%;
-    transform:translateX(-50%);
-    display:flex;
-    gap:10px;
-    z-index:30;
-    pointer-events:none;
+.dock-min-sep{
+    width:0;
+    height:var(--dock-size);
+    margin:0;
     opacity:0;
-    transition:opacity .2s var(--ease);
+    background:rgba(255,255,255,0.18);
+    border-radius:2px;
+    flex-shrink:0;
+    transition:width .2s var(--ease), margin .2s var(--ease), opacity .2s var(--ease), height .08s;
 }
-#minimized-tray.has-items{
-    pointer-events:auto;
+#dock.has-minimized .dock-min-sep{
+    width:1px;
+    margin:0 10px;
     opacity:1;
 }
-.tray-chip{
-    background:rgba(20,20,22,0.75);
-    backdrop-filter:blur(10px);
-    -webkit-backdrop-filter:blur(10px);
-    border:1px solid rgba(255,255,255,0.1);
-    border-radius:10px;
-    padding:8px 14px;
-    color:var(--text);
-    font-family:'Bebas Neue',sans-serif;
-    letter-spacing:.08em;
-    font-size:12px;
+.dock-minimized-group{
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+.dock-min-chip{
+    position:relative;
+    width:var(--dock-size);
+    height:var(--dock-size);
+    border:none;
+    background:transparent;
+    border-radius:14px;
     cursor:pointer;
-    box-shadow:0 10px 24px rgba(0,0,0,.4);
-    transition:transform .15s var(--ease), border-color .15s;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+    opacity:.6;
+    transition:opacity .15s, transform .15s var(--ease);
 }
-.tray-chip:hover{
-    transform:translateY(-3px);
-    border-color:#ff4dab;
+.dock-min-chip img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    display:block;
+    filter:grayscale(.35);
+    transition:filter .15s;
 }
-
+.dock-min-chip:hover{
+    opacity:1;
+    transform:translateY(-4px);
+}
+.dock-min-chip:hover img{
+    filter:none;
+}
+.dock-min-chip::after{
+    content:'';
+    position:absolute;
+    bottom:-6px;
+    left:50%;
+    transform:translateX(-50%);
+    width:4px;
+    height:4px;
+    border-radius:50%;
+    background:#ff4dab;
+    box-shadow:0 0 6px rgba(255,77,171,.8);
+}
+/* ============================================================
+   DOCK TOOLTIPS — macOS-style hover label above each dock icon.
+============================================================ */
+[data-tooltip]{
+    position:relative;
+}
+[data-tooltip]::before,
+[data-tooltip]::after{
+    position:absolute;
+    left:50%;
+    bottom:100%;
+    pointer-events:none;
+    opacity:0;
+    transform:translate(-50%, 4px);
+    transition:opacity .12s ease, transform .12s ease;
+}
+[data-tooltip]::before{
+    content:attr(data-tooltip);
+    margin-bottom:10px;
+    padding:5px 11px;
+    background:rgba(28,28,30,.96);
+    border:1px solid rgba(255,255,255,.1);
+    border-radius:6px;
+    color:#f2f2f2;
+    font-family:'DM Sans', sans-serif;
+    font-size:12.5px;
+    font-weight:500;
+    white-space:nowrap;
+    box-shadow:0 6px 18px rgba(0,0,0,.4);
+    z-index:60;
+}
+[data-tooltip]::after{
+    content:'';
+    margin-bottom:5px;
+    border:5px solid transparent;
+    border-top-color:rgba(28,28,30,.96);
+    z-index:60;
+}
+[data-tooltip]:hover::before,
+[data-tooltip]:hover::after{
+    opacity:1;
+    transform:translate(-50%, 0);
+}
 /* ============================================================
    DOCK — sized off --dock-size so the resize handle can scale
    every icon at once just by changing one CSS variable.
@@ -205,8 +494,8 @@ body{margin:0;height:100vh;font-family:"DM Sans", sans-serif;color:var(--text);}
 #dock{
     position:absolute;bottom:18px;left:50%;
     transform:translateX(-50%);
-    display:flex;align-items:center;gap:8px;
-    padding:5px 15px;
+    display:flex;align-items:center;gap:2px;
+    padding:10px 20px;
     background:rgba(20,20,22,0.55);
     backdrop-filter:blur(14px);
     -webkit-backdrop-filter:blur(14px);
@@ -215,10 +504,11 @@ body{margin:0;height:100vh;font-family:"DM Sans", sans-serif;color:var(--text);}
     box-shadow:0 18px 50px rgba(0,0,0,0.45);
     transform-origin:bottom center;
 }
+
 .dock-btn{
     width:var(--dock-size);
     height:var(--dock-size);
-    border-radius:14px;
+    border-radius:calc(var(--dock-size) * 0.22);
     border:none;
     background:transparent;
     color:var(--text);
@@ -227,11 +517,19 @@ body{margin:0;height:100vh;font-family:"DM Sans", sans-serif;color:var(--text);}
     flex-shrink:0;
     transition:transform .15s var(--ease), width .08s, height .08s;
 }
+.dock-icon-clip{
+    width:100%;
+    height:100%;
+    border-radius:calc(var(--dock-size) * 0.22);
+    overflow:hidden;
+    display:flex;align-items:center;justify-content:center;
+}
 .dock-btn img{
   width: var(--dock-size);
   height: var(--dock-size);
   object-fit: contain;
   display: block;
+  transform: scale(var(--icon-zoom, 1.35));
   transition: transform .08s, width .08s, height .08s;
 }
 
@@ -239,17 +537,17 @@ body{margin:0;height:100vh;font-family:"DM Sans", sans-serif;color:var(--text);}
 
 .dock-sep{
     position:relative;
-    width:2px;
+    width:1px;
     height:var(--dock-size);
     margin:0 12px;
-    background:linear-gradient(to bottom, transparent, #00e5ff, #00bcd4, transparent);
+    background:rgba(255,255,255,0.18);
     border-radius:2px;
     opacity:0.9;
-    box-shadow:0 0 10px rgba(0,229,255,0.6);
     cursor:row-resize;
     flex-shrink:0;
     transition:height .08s;
 }
+
 .dock-sep::before{
     content:'';
     position:absolute;
@@ -271,14 +569,16 @@ body{margin:0;height:100vh;font-family:"DM Sans", sans-serif;color:var(--text);}
     display: block;
     transition: transform .2s var(--ease), filter .2s var(--ease);
   }
-  
   .file-icon:hover .glyph img{
     transform: scale(1.05);
     filter:
-      drop-shadow(0 0 10px rgba(255,255,255,0.5))
-      drop-shadow(0 0 20px rgba(255,255,255,0.3));
-  }
+      drop-shadow(0 0 1px  rgba(var(--glow-rgb, 255,255,255), 0.95))
+      drop-shadow(0 0 4px  rgba(var(--glow-rgb, 255,255,255), 0.75))
+      drop-shadow(0 0 10px rgba(var(--glow-rgb, 255,255,255), 0.4));
+}
 
+
+  
   /* ==========================================
 PHOTOBOOK
 ========================================== */
@@ -306,7 +606,7 @@ PHOTOBOOK
   }
   
   .gallery-image{
-    max-height:80vh;
+    max-height:85vh;
     max-width:70vw;
   
     object-fit:contain;
@@ -379,62 +679,200 @@ PHOTOBOOK
   }
 
 /* ============================================================
-   FAN PLAYLIST — persistent desktop widget. Uses your own
-   background PNG for the panel + vinyl artwork — only the
-   title and track list render as live text on top of it. The
-   numbers below position that text over the blank space your
-   PNG leaves for it; nudge them to match your specific file.
+   FAN PLAYLIST — same rainbow-border glass card, now with a
+   PNG background. A dark scrim sits between the image and the
+   text/border so contrast stays high regardless of what the
+   image looks like.
 
-   IMPORTANT: set width/height to your PNG's actual pixel size
-   (or a scaled-down version with the same ratio) — background-
-   size is set to stretch exactly to the box, so a mismatched
-   ratio will distort the art.
+   TO SET YOUR PNG: just swap the url() path below.
+   TO ADJUST CONTRAST: tweak the scrim's rgba opacity values —
+   higher opacity = darker/more readable, lower = more of the
+   PNG shows through.
 ============================================================ */
 #fan-playlist-widget{
     position:absolute;
-    right:34px;
-    bottom:130px;
-    width:465px;   /* <-- match your PNG's width */
-    height:325px;  /* <-- match your PNG's height */
-    /* background-image:url("assets/fan-playlist-bg.png"); /* <-- your file */
-    background-color: white;
-    background-size:100% 100%;
-    background-repeat:no-repeat;
+    right:180px;
+    bottom:600px;
+    width:490px;
+    height:230px;
+
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    padding:20px 24px;
+
+    border-radius:16px;
+    border:2px solid transparent;
+    background:
+        linear-gradient(180deg, rgba(0,0,0,.6), rgba(0,0,0,.75)) padding-box,
+        url("assets/playlist-bg.png") center / cover no-repeat padding-box,
+        linear-gradient(90deg,
+            #ff4dab,
+            #ffcc4d,
+            #00e5ff,
+            #b066ff
+        ) border-box;
+
+    box-shadow:0 20px 55px rgba(0,0,0,0.55);
+
+    overflow:hidden;
     z-index:3;
 }
-#fan-playlist-widget .fpw-title{
-    position:absolute;
-    top:40px;
-    left:285px;
-    margin:0;
-    font-family:'Bebas Neue',sans-serif;
-    letter-spacing:.02em;
-    font-size:22px;
-    color:#111;
+
+/* ----- header: eyebrow label + title row ----- */
+.fpw-header{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    flex-shrink:0;
 }
-.fpw-tracks--widget{
-    position:absolute;
-    top:88px;
-    left:246px;
-    width:200px;
-    max-height:215px;
+.fpw-eyebrow{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-family:'DM Sans', sans-serif;
+    font-size:10.5px;
+    font-weight:700;
+    letter-spacing:.14em;
+    color:rgba(255,255,255,.65);
+    text-shadow:0 1px 2px rgba(0,0,0,.7);
 }
 
-/* shared list-item styling, used by both the desktop widget
-   and the Playlist app's LIST tab */
+/* tiny equalizer animation — subtle sign of life, not a distraction */
+.fpw-eq{
+    display:inline-flex;
+    align-items:flex-end;
+    gap:2px;
+    height:9px;
+}
+.fpw-eq span{
+    width:2px;
+    border-radius:1px;
+    transform-origin:bottom;
+    animation:fpwEqBounce 1s ease-in-out infinite;
+}
+.fpw-eq span:nth-child(1){ height:40%; background:#ff4dab; animation-delay:0s; }
+.fpw-eq span:nth-child(2){ height:100%; background:#ffcc4d; animation-delay:.2s; }
+.fpw-eq span:nth-child(3){ height:60%; background:#00e5ff; animation-delay:.4s; }
+@keyframes fpwEqBounce{
+    0%, 100%{ transform:scaleY(.4); }
+    50%{ transform:scaleY(1); }
+}
+
+.fpw-title-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+}
+#fan-playlist-widget .fpw-title{
+    margin:0;
+    font-family:"massilia",sans-serif;
+    letter-spacing:.04em;
+    font-size:19px;
+    color:#fff;
+    text-shadow:0 1px 3px rgba(0,0,0,.8), 0 0 12px rgba(0,0,0,.6);
+}
+.fpw-count{
+    flex-shrink:0;
+    padding:3px 10px;
+    border-radius:999px;
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.18);
+    font-family:'DM Sans', sans-serif;
+    font-size:11px;
+    font-weight:600;
+    color:#fff;
+    text-shadow:0 1px 2px rgba(0,0,0,.7);
+    white-space:nowrap;
+}
+
+.fpw-divider{
+    height:1px;
+    flex-shrink:0;
+    background:linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.25), rgba(255,255,255,0));
+}
+
+/* ----- track list ----- */
+.fpw-tracks--widget{
+    flex:1;
+    min-height:0;
+    overflow-y:auto;
+    padding-right:4px;
+}
+.fpw-tracks--widget::-webkit-scrollbar{ width:4px; }
+.fpw-tracks--widget::-webkit-scrollbar-thumb{ background:rgba(255,255,255,.25); border-radius:4px; }
+
 .fpw-tracks{
     list-style:none;margin:0;padding:0;
     display:flex;flex-direction:column;gap:10px;
-    overflow-y:auto;
 }
 .fpw-tracks li{
     display:flex;align-items:flex-start;gap:8px;
     font-size:13px;
 }
-.fpw-tracks .fpw-note{flex-shrink:0;margin-top:2px;opacity:.75;}
-.fpw-tracks .fpw-song{font-weight:700;color:#111;line-height:1.3;}
-.fpw-tracks .fpw-artist{font-size:11px;color:#6b6b6b;}
-.fpw-empty{font-size:12px;color:#6b6b6b;font-style:italic;}
+.fpw-tracks--widget li:not(:last-child){
+    padding-bottom:8px;
+    border-bottom:1px solid rgba(255,255,255,.08);
+}
+.fpw-tracks .fpw-note{
+    flex-shrink:0;
+    margin-top:2px;
+    color:#ffcc4d;
+    text-shadow:0 0 6px rgba(255,204,77,.7);
+}
+.fpw-tracks .fpw-song{
+    font-weight:700;
+    color:#fff;
+    line-height:1.3;
+    text-shadow:0 1px 3px rgba(0,0,0,.8);
+}
+.fpw-tracks .fpw-artist{
+    font-size:11px;
+    color:#e6e6e6;
+    text-shadow:0 1px 2px rgba(0,0,0,.7);
+}
+
+/* ----- empty state: centered, designed, not just a stray line ----- */
+.fpw-empty{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    text-align:center;
+    padding:6px 0;
+}
+.fpw-empty-icon{
+    font-size:22px;
+    color:rgba(255,255,255,.35);
+    text-shadow:0 1px 3px rgba(0,0,0,.6);
+}
+.fpw-empty-text{
+    font-size:12px;
+    color:#cfcfcf;
+    font-style:italic;
+    line-height:1.5;
+    text-shadow:0 1px 2px rgba(0,0,0,.7);
+}
+
+/* ----- footer caption ----- */
+.fpw-footer{
+    flex-shrink:0;
+    display:flex;
+    align-items:center;
+    gap:4px;
+    padding-top:10px;
+    border-top:1px solid rgba(255,255,255,.1);
+    font-family:'DM Sans', sans-serif;
+    font-size:11px;
+    color:rgba(255,255,255,.6);
+    text-shadow:0 1px 2px rgba(0,0,0,.7);
+}
+.fpw-footer-arrow{
+    color:#ffcc4d;
+}
 
 /* ----- Playlist app window: List / Add Song tabs ----- */
 .playlist-tabs{
@@ -447,7 +885,7 @@ PHOTOBOOK
     border:1px solid var(--panel-edge);
     border-radius:8px;
     color:var(--text-dim);
-    font-family:'Bebas Neue',sans-serif;
+    font-family:"massilia",sans-serif;
     letter-spacing:.06em;
     font-size:12px;
     cursor:pointer;
@@ -478,7 +916,7 @@ PHOTOBOOK
     border:none;border-radius:8px;
     background:#ff4dab;
     color:#000;
-    font-family:'Bebas Neue',sans-serif;
+    font-family:"massilia",sans-serif;
     letter-spacing:.06em;
     font-size:13px;
     cursor:pointer;
@@ -493,27 +931,31 @@ PHOTOBOOK
     position:relative;
     display:block;
 }
-.video-watch-btn{
+.video-play-btn{
     position:absolute;
+    top:50%;
     left:50%;
-    bottom:20px;
-    transform:translateX(-50%);
-    padding:12px 28px;
-    border-radius:8px;
-    background:#ff4dab;
-    color:#000;
-    font-family:'Bebas Neue',sans-serif;
-    letter-spacing:.06em;
-    font-size:14px;
-    text-decoration:none;
-    white-space:nowrap;
+    transform:translate(-50%,-50%);
+    width:72px;
+    height:72px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.85);
+    color:#1a1a1d;
+    display:flex;
+    align-items:center;
+    justify-content:center;
     box-shadow:0 12px 30px rgba(0,0,0,.45);
-    transition:transform .15s var(--ease);
+    transition:transform .15s var(--ease), background .15s;
 }
-.video-watch-btn:hover{
-    transform:translateX(-50%) translateY(-2px);
+.video-play-btn svg{
+    width:30px;
+    height:30px;
+    margin-left:3px; /* optical centering — triangle's visual weight sits slightly left of its bounding box */
 }
-
+.video-play-btn:hover{
+    transform:translate(-50%,-50%) scale(1.08);
+    background:#fff;
+}
 
 
 /* LOADING */
@@ -545,7 +987,7 @@ PHOTOBOOK
   }
   
   .loading-logo{
-    font-family:'Bebas Neue', sans-serif;
+    font-family:"massilia",sans-serif;
     font-size:4rem;
     letter-spacing:.15em;
     margin-bottom:1rem;
@@ -577,5 +1019,128 @@ PHOTOBOOK
     to{ width:100%; }
   }
 
+/* ============================================================
+   TOPBAR — slim macOS/Chrome-style menu bar, always on top
+   (above windows) so it reads as system chrome, not a panel.
+============================================================ */
+#topbar{
+    position:absolute;
+    top:0; left:0; right:0;
+    height:var(--topbar-h);
+    z-index:9999;
 
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 16px;
+
+    background:rgba(0, 0, 0, 0.7);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    border-bottom:1px solid rgba(255, 255, 255, 0.47);
+
+    font-family:'DM Sans', sans-serif;
+    color:var(--text);
+    -webkit-user-select:none;user-select:none;
+}
+.topbar-left{
+    display:flex;
+    align-items:center;
+    gap:0;              /* remove flex gap completely */
+    font-size:0;        /* removes inline-image whitespace issues */
+  }
+
+  .topbar-icon{
+    width:52px;
+    height:52px;
+    object-fit:contain;
+    margin-right:-2px;  /* tight nudge */
+  }
   
+  .topbar-logo{
+    height:52px;
+    width:auto;
+    margin-left:-2px;   /* tight nudge */
+  }
+
+  .topbar-icon,
+.topbar-logo{
+  display:block;      /* IMPORTANT */
+  margin:0;
+  padding:0;
+}
+  
+.topbar-menu{
+    display:flex;align-items:center;gap:16px;
+}
+.topbar-menu-item{
+    font-size:12.5px;
+    color:var(--text-dim);
+    cursor:default;
+    transition:color .15s;
+}
+.topbar-menu-item:hover{ color:var(--text); }
+
+.topbar-right{
+    display:flex;align-items:center;gap:14px;flex-shrink:0;
+}
+.topbar-glyph{
+    display:flex;align-items:center;justify-content:center;
+    color:var(--text-dim);
+    opacity:.85;
+}
+.topbar-glyph svg{ display:block; }
+.topbar-glyph:not(.topbar-battery) svg{ width:15px;height:15px; }
+.topbar-battery svg{ width:22px;height:12px; }
+.topbar-clock{
+    font-size:12px;
+    color:var(--text-dim);
+    white-space:nowrap;
+}
+
+@media (max-width: 720px){
+    .topbar-menu{ display:none; }
+}
+  
+
+.playlist-prompt{
+    position:relative;
+    margin:0 0 16px;
+    padding:16px 18px;
+    background:linear-gradient(160deg, rgba(255,77,171,.16), rgba(255,77,171,.04));
+    border:1px solid rgba(255,77,171,.35);
+    border-radius:10px;
+    overflow:hidden;
+}
+.playlist-prompt::before{
+    content:'';
+    position:absolute;
+    top:-30%;
+    right:-20%;
+    width:140px;
+    height:140px;
+    background:radial-gradient(circle, rgba(255,77,171,.35), transparent 70%);
+    pointer-events:none;
+}
+.playlist-prompt-emoji{
+    display:block;
+    font-size:22px;
+    margin-bottom:4px;
+    position:relative;
+}
+.playlist-prompt-question{
+    margin:0 0 6px;
+    font-family:"massilia",sans-serif;
+    letter-spacing:.04em;
+    font-size:22px;
+    color:#fff;
+    position:relative;
+}
+.playlist-prompt-sub{
+    margin:0;
+    font-family:'DM Sans', sans-serif;
+    font-size:12.5px;
+    line-height:1.45;
+    color:var(--text-dim);
+    position:relative;
+}

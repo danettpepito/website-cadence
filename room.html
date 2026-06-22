@@ -7,14 +7,56 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&family=Space+Mono&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
+<style>
+  body {
+    margin: 0;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+  }
+
+  .top-bar {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 10;
+  }
+
+  .back-btn {
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 10px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 14px;
+    backdrop-filter: blur(8px);
+  }
+
+  .back-btn:hover {
+    background: rgba(0,0,0,0.85);
+  }
+</style>
 </head>
 
-  <div class="spline-container">
-    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.10.99/build/spline-viewer.js"></script>
+<body>
 
+<div class="top-bar">
+  <a href="#" class="back-btn" onclick="goBack()">← Back to website</a>
+</div>
+
+  <div class="spline-container">
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.12.97/build/spline-viewer.js"></script>
     <spline-viewer url="https://prod.spline.design/2pr9kQEvichyvfov/scene.splinecode"></spline-viewer>
   </div>
+  <script>
+    function goBack() {
+      // try close tab first
+      window.close();
 
+      // fallback if blocked
+      setTimeout(() => {
+        window.location.href = "https://your-website-link.com";
+      }, 100);
+    }
+  </script>
 </body>
 </html>
