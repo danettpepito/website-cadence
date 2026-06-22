@@ -701,7 +701,7 @@ PHOTOBOOK
     gap:12px;
     padding:20px 24px;
 
-    border-radius:16px;
+    border-radius:8px;
     border:2px solid transparent;
     background:
         linear-gradient(180deg, rgba(0,0,0,.6), rgba(0,0,0,.75)) padding-box,
