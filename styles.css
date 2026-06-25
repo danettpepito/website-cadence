@@ -44,7 +44,7 @@ body{margin:0;height:100vh;font-family:"DM Sans", sans-serif;color:var(--text);}
   
     background-image:
       linear-gradient(var(--bg-overlay), var(--bg-overlay)),
-      url("assets/bg.gif");
+      url("assets/bg.png");
     background-size:cover;
     background-position:center;
     background-repeat:no-repeat;
